@@ -41,6 +41,26 @@ app.delete("/user", (req, res) => {
   });
 });
 
+// Regular expression route
+
+// {e} means e is optional
+app.get("/t{e}st", (req, res) => {
+  res.send({ status: true });
+});
+
+// * means anything in between te(anything)st
+app.get("/te*st", (req, res) => {
+  res.send("* operator in req" + req.url);
+});
+
+// query and params
+
+app.get("/abc/:userId", (req, res) => {
+  console.log(req.params);
+  console.log(req.query);
+  res.send("response => " + req.url);
+});
+
 const PORT = 3001;
 app.listen(PORT, (error) => {
   if (error) {
