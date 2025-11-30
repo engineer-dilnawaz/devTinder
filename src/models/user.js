@@ -1,4 +1,5 @@
 const mongose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongose.Schema(
   {
@@ -16,10 +17,26 @@ const userSchema = new mongose.Schema(
       unique: true,
       trim: true,
       immutable: true,
+      validate: {
+        validator: function (value) {
+          return validator.isEmail(value);
+        },
+        message: (props) => {
+          return `Provided '${props.value}' is not a valid email.`;
+        },
+      },
     },
     password: {
       type: String,
       required: true,
+      validate: {
+        validator: function (value) {
+          return validator.isStrongPassword(value);
+        },
+        message: (props) => {
+          return `Provided '${props.value}' is not a strong password.`;
+        },
+      },
     },
     age: {
       type: Number,
@@ -38,7 +55,17 @@ const userSchema = new mongose.Schema(
       //   }
       // },
     },
-    profilePhoto: String,
+    profilePhoto: {
+      type: String,
+      validate: {
+        validator: function (value) {
+          return validator.isURL(value);
+        },
+        message: (props) => {
+          return `Provided '${props.value}' is not a valid url.`;
+        },
+      },
+    },
     bio: {
       type: String,
       default: "Hardwork beats talent if talent don't work hard",
