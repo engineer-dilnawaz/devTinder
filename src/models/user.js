@@ -7,13 +7,22 @@ const userSchema = new mongose.Schema(
       type: String,
       required: true,
       minLength: [3, "First name should contain at least 3 characters."],
-      maxLength: 50,
+      maxLength: [50, "First name cannot be more than 50 characters"],
+      set: (value) =>
+        value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
     },
-    lastName: String,
+    lastName: {
+      type: String,
+      required: true,
+      minLength: [3, "Last name should contain at least 3 characters."],
+      maxLength: [50, "Last name cannot be more than 50 characters"],
+      set: (value) =>
+        value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
+    },
     emailId: {
       type: String,
       lowercase: true,
-      required: [true, "Email Id is required."],
+      required: [true, "Email id is required to create an account."],
       unique: true,
       trim: true,
       immutable: true,
