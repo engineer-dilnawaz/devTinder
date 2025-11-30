@@ -1,17 +1,11 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
 
 const User = require("./models/user");
 const { isEmailValid, isEmpty } = require("./utils/validations");
 const { userAuth } = require("./middlewares/auth");
-const {
-  PORT,
-  SALT_ROUND,
-  JWT_SECRET,
-  JWT_EXPIRE,
-} = require("./constants/common");
+const { PORT, SALT_ROUND } = require("./constants/common");
 const connectDB = require("./config/database");
 
 const app = express();
@@ -61,7 +55,7 @@ app.post("/login", async (req, res) => {
       );
     }
 
-    const isPasswordValid = await bcrypt.compare(password, userData.password);
+    const isPasswordValid = await userData.validatePassword(password);
 
     if (!isPasswordValid) {
       throw new Error(
@@ -71,9 +65,7 @@ app.post("/login", async (req, res) => {
       );
     }
 
-    const token = jwt.sign({ _id: userData._id }, JWT_SECRET, {
-      expiresIn: JWT_EXPIRE,
-    });
+    const token = userData.getJWT();
     res.cookie("token", token, {
       expires: new Date(Date.now() + 24 * 3600000), // cookie will be removed after 8 hours
     });
