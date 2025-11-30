@@ -46,40 +46,24 @@ app.post("/login", async (req, res) => {
 
     if (!userData) {
       throw new Error(
-        "User with this email is not registered yet. Please sign up first"
+        // NEVER EXPOSE YOUR DB TO allow Attackers to know what needs to be tweaked
+        // "User with this email is not registered yet. Please sign up first"
+        "Invalid credentails"
       );
     }
 
     const isPasswordValid = await bcrypt.compare(password, userData.password);
 
     if (!isPasswordValid) {
-      throw new Error("Enter a valid password to login");
+      throw new Error(
+        // NEVER EXPOSE YOUR DB TO allow Attackers to know what needs to be tweaked
+        // "Enter a valid password to login"
+        "Invalid credentails"
+      );
     }
 
-    const {
-      firstName,
-      lastName,
-      bio,
-      skills,
-      age,
-      gender,
-      profilePhoto,
-      createdAt,
-    } = userData;
     res.send({
-      status: true,
       message: "Logged In Successfully",
-      data: {
-        firstName,
-        lastName,
-        bio,
-        skills,
-        age,
-        gender,
-        profilePhoto,
-        createdAt,
-        emailId,
-      },
     });
   } catch (error) {
     res.status(400).send({
