@@ -1,11 +1,9 @@
 const express = require("express");
 
-const { adminAuth } = require("./middlewares/auth");
+const {} = require("./middlewares/auth");
 const { PORT } = require("./constants/common");
 
 const app = express();
-
-app.use("/admin", adminAuth);
 
 app.get("/admin/all-user", (req, res) => {
   const users = [

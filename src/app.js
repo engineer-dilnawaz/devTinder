@@ -1,14 +1,18 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
-const connectDB = require("./config/database");
 const User = require("./models/user");
-const { PORT, SALT_ROUND } = require("./constants/common");
 const { isEmailValid, isEmpty } = require("./utils/validations");
+const { userAuth } = require("./middlewares/auth");
+const { PORT, SALT_ROUND, JWT_SECRET } = require("./constants/common");
+const connectDB = require("./config/database");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
@@ -62,8 +66,50 @@ app.post("/login", async (req, res) => {
       );
     }
 
+    const token = jwt.sign({ _id: userData._id }, JWT_SECRET);
+    res.cookie("token", token);
+
     res.send({
       message: "Logged In Successfully",
+      authToken: token,
+    });
+  } catch (error) {
+    res.status(400).send({
+      message: error.message,
+    });
+  }
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    const {
+      firstName,
+      lastName,
+      emailId,
+      bio,
+      skills,
+      createdAt,
+      updatedAt,
+      age,
+      gender,
+      profilePhoto,
+    } = user;
+
+    res.send({
+      status: "success",
+      data: {
+        firstName,
+        lastName,
+        emailId,
+        bio,
+        skills,
+        createdAt,
+        updatedAt,
+        age,
+        gender,
+        profilePhoto,
+      },
     });
   } catch (error) {
     res.status(400).send({
