@@ -67,10 +67,34 @@ app.delete("/user", async (req, res) => {
   }
 });
 
-app.patch("/user", async (req, res) => {
-  const { userId, ...data } = req.body;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId;
+
+  if (!userId) {
+    throw new Error("User Id is mandatory to update the user record.");
+  }
+
+  const data = req.body;
+  const allowedUpdateFields = [
+    "firstName",
+    "lastName",
+    "age",
+    "gender",
+    "bio",
+    "skills",
+    "profilePhoto",
+    "password",
+  ];
+
+  const isUpdateAllowed = Object.keys(data).every((key) =>
+    allowedUpdateFields.includes(key)
+  );
 
   try {
+    if (!isUpdateAllowed) {
+      throw new Error("You cannot update email id once it's set.");
+    }
+
     const updatedData = await User.findByIdAndUpdate(userId, data, {
       new: true,
       // returnDocument: "before",
@@ -83,8 +107,8 @@ app.patch("/user", async (req, res) => {
     } else {
       res.send({
         status: true,
+        message: `${updatedData?.firstName}'s profile has updated successfully.`,
         data: updatedData,
-        message: `${updatedData?.firstName} has updated successfully.`,
       });
     }
   } catch (error) {

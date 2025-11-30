@@ -15,6 +15,7 @@ const userSchema = new mongose.Schema(
       required: [true, "Email Id is required."],
       unique: true,
       trim: true,
+      immutable: true,
     },
     password: {
       type: String,
@@ -42,7 +43,16 @@ const userSchema = new mongose.Schema(
       type: String,
       default: "Hardwork beats talent if talent don't work hard",
     },
-    skills: [String],
+    skills: {
+      type: [String],
+      validate: {
+        validator: function (v) {
+          return v.length <= 10;
+        },
+        message: (props) =>
+          `Skills can only be added upto 10. You have provided ${props.value.length} skills`,
+      },
+    },
   },
   {
     timestamps: true,
