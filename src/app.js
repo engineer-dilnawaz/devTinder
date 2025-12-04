@@ -1,143 +1,21 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 
-const User = require("./models/user");
-const { isEmailValid, isEmpty } = require("./utils/validations");
-const { userAuth } = require("./middlewares/auth");
-const { PORT, SALT_ROUND } = require("./constants/common");
+const { PORT } = require("./constants/common");
 const connectDB = require("./config/database");
+
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.post("/signup", async (req, res) => {
-  try {
-    const { firstName, lastName, emailId, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUND);
-
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password: hashedPassword,
-    });
-    await user.save();
-    res.send("User data saved successfully...");
-  } catch (error) {
-    res.status(400).send({
-      message: error.message,
-    });
-  }
-});
-
-app.post("/login", async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
-
-    if (isEmpty(emailId) || isEmpty(password)) {
-      throw new Error("Enter or Password is required to log in");
-    }
-
-    if (!isEmailValid(emailId)) {
-      throw new Error("Enter a valid email");
-    }
-
-    const userData = await User.findOne({ emailId });
-
-    if (!userData) {
-      throw new Error(
-        // NEVER EXPOSE YOUR DB TO allow Attackers to know what needs to be tweaked
-        // "User with this email is not registered yet. Please sign up first"
-        "Invalid credentails"
-      );
-    }
-
-    const isPasswordValid = await userData.validatePassword(password);
-
-    if (!isPasswordValid) {
-      throw new Error(
-        // NEVER EXPOSE YOUR DB TO allow Attackers to know what needs to be tweaked
-        // "Enter a valid password to login"
-        "Invalid credentails"
-      );
-    }
-
-    const token = userData.getJWT();
-    res.cookie("token", token, {
-      expires: new Date(Date.now() + 24 * 3600000), // cookie will be removed after 8 hours
-    });
-
-    res.send({
-      message: "Logged In Successfully",
-      authToken: token,
-    });
-  } catch (error) {
-    res.status(400).send({
-      message: error.message,
-    });
-  }
-});
-
-app.get("/profile", userAuth, async (req, res) => {
-  try {
-    const user = req.user;
-    const {
-      firstName,
-      lastName,
-      emailId,
-      bio,
-      skills,
-      createdAt,
-      updatedAt,
-      age,
-      gender,
-      profilePhoto,
-    } = user;
-
-    res.send({
-      status: "success",
-      data: {
-        firstName,
-        lastName,
-        emailId,
-        bio,
-        skills,
-        createdAt,
-        updatedAt,
-        age,
-        gender,
-        profilePhoto,
-      },
-    });
-  } catch (error) {
-    res.status(400).send({
-      message: error.message,
-    });
-  }
-});
-
-app.post("/sendConnection/:requestedUserId", userAuth, async (req, res) => {
-  try {
-    const user = req.user;
-    const requestedUserId = req.params?.requestedUserId;
-
-    if (user._id.equals(requestedUserId)) {
-      throw new Error("You cannot send request to your own account");
-    }
-
-    res.send({
-      status: "success",
-      message: `${user.firstName} is trying to send request to ${requestedUserId}`,
-    });
-  } catch (error) {
-    res.status(400).send({
-      message: error.message,
-    });
-  }
-});
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
 
 connectDB()
   .then(() => {
