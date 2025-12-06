@@ -1,9 +1,19 @@
 const mongose = require("mongoose");
-const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-const { JWT_SECRET, JWT_EXPIRE } = require("../constants/common");
+const {
+  JWT_SECRET,
+  JWT_EXPIRE,
+  ALLOWED_SKILLS_LEGNTH,
+  SALT_ROUND,
+} = require("../constants/common");
+const {
+  isValidUrl,
+  isStrongPassword,
+  isEmailValid,
+  capitalizeString,
+} = require("../utils/validations");
 
 const userSchema = new mongose.Schema(
   {
@@ -12,16 +22,14 @@ const userSchema = new mongose.Schema(
       required: true,
       minLength: [3, "First name should contain at least 3 characters."],
       maxLength: [50, "First name cannot be more than 50 characters"],
-      set: (value) =>
-        value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
+      set: (value) => capitalizeString(value),
     },
     lastName: {
       type: String,
       required: true,
       minLength: [3, "Last name should contain at least 3 characters."],
       maxLength: [50, "Last name cannot be more than 50 characters"],
-      set: (value) =>
-        value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
+      set: (value) => capitalizeString(value),
     },
     emailId: {
       type: String,
@@ -32,7 +40,7 @@ const userSchema = new mongose.Schema(
       immutable: true,
       validate: {
         validator: function (value) {
-          return validator.isEmail(value);
+          return isEmailValid(value);
         },
         message: (props) => {
           return `Provided '${props.value}' is not a valid email.`;
@@ -44,7 +52,7 @@ const userSchema = new mongose.Schema(
       required: true,
       validate: {
         validator: function (value) {
-          return validator.isStrongPassword(value);
+          return isStrongPassword(value);
         },
         message: (props) => {
           return `Provided '${props.value}' is not a strong password.`;
@@ -72,7 +80,7 @@ const userSchema = new mongose.Schema(
       type: String,
       validate: {
         validator: function (value) {
-          return validator.isURL(value);
+          return isValidUrl(value);
         },
         message: (props) => {
           return `Provided '${props.value}' is not a valid url.`;
@@ -81,13 +89,13 @@ const userSchema = new mongose.Schema(
     },
     bio: {
       type: String,
-      default: "Hardwork beats talent if talent don't work hard",
+      default: "Hardwork beats talent if talent doesn't work hard",
     },
     skills: {
       type: [String],
       validate: {
         validator: function (v) {
-          return v.length <= 10;
+          return v.length <= ALLOWED_SKILLS_LEGNTH;
         },
         message: (props) =>
           `Skills can only be added upto 10. You have provided ${props.value.length} skills`,

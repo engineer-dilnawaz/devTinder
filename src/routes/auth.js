@@ -61,7 +61,7 @@ authRouter.post("/login", async (req, res) => {
 
     const token = userData.getJWT();
     res.cookie("token", token, {
-      expires: new Date(Date.now() + 24 * 3600000), // cookie will be removed after 8 hours
+      expires: new Date(Date.now() + 24 * 3600000), // cookie will be removed after 24 hours
     });
 
     res.send({
