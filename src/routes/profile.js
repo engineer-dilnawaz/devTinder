@@ -5,6 +5,7 @@ const { userAuth } = require("../middlewares/auth");
 const {
   validateProfileEdits,
   validatePasswordUpdate,
+  isStrongPassword,
 } = require("../utils/validations");
 const { SALT_ROUND } = require("../constants/common");
 
@@ -71,43 +72,30 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
 
 profileRouter.patch("/profile/updatePassword", userAuth, async (req, res) => {
   try {
-    if (!validatePasswordUpdate(req)) {
-      throw new Error("Provide the valid json to update your password");
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        status: 400,
+        message: "Please provide both oldPassword and newPassword.",
+      });
     }
 
     const loggedInUser = req.user;
 
-    const isOldPasswordCorrect = await loggedInUser.validatePassword(
-      req.body.oldPassword
-    );
+    // Use the model method
+    await loggedInUser.changePassword(oldPassword, newPassword);
 
-    if (!isOldPasswordCorrect) {
-      throw new Error("Old password is not correct");
-    }
-
-    const isSameAsOld = await loggedInUser.validatePassword(
-      req.body.newPassword
-    );
-
-    if (isSameAsOld) {
-      throw new Error("New password cannot be the same as the old password.");
-    }
-
-    const hashedPassword = await bcrypt.hash(req.body.newPassword, SALT_ROUND);
-    loggedInUser.password = hashedPassword;
-
-    await loggedInUser.save({ validateBeforeSave: true });
-
-    res.cookie("token", null, {
-      expires: new Date(Date.now()),
-    });
-
+    // 5️⃣ Invalidate old JWT and set new one
     const token = loggedInUser.getJWT();
     res.cookie("token", token, {
-      expires: new Date(Date.now() + 24 * 3600000), // cookie will be removed after 24 hours
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      expires: new Date(Date.now() + 24 * 3600000), // 24 hours
     });
 
-    res.json({
+    res.status(200).json({
       status: 200,
       message: `${loggedInUser.firstName}, your password has been updated successfully.`,
     });

@@ -119,6 +119,33 @@ userSchema.methods.validatePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+// Add a helper method to User model (userSchema)
+userSchema.methods.changePassword = async function (oldPassword, newPassword) {
+  // 1️⃣ Validate old password
+  const isOldValid = await this.validatePassword(oldPassword);
+  if (!isOldValid) {
+    throw new Error("Old password is not correct.");
+  }
+
+  // 2️⃣ Prevent using same password
+  const isSameAsOld = await this.validatePassword(newPassword);
+  if (isSameAsOld) {
+    throw new Error("New password cannot be the same as the old password.");
+  }
+
+  // 3️⃣ Validate password strength
+  if (!isStrongPassword(newPassword)) {
+    throw new Error(
+      "New password is not strong enough. Use min 8 chars, uppercase, lowercase, number, special char."
+    );
+  }
+
+  // 4️⃣ Hash new password and save
+  const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUND);
+  this.password = hashedPassword;
+  await this.save({ validateBeforeSave: true });
+};
+
 const User = mongose.model("User", userSchema);
 
 module.exports = User;

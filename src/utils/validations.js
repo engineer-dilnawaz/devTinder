@@ -59,9 +59,7 @@ const validatePasswordUpdate = (req) => {
     allowedFieldsUpdate.includes(field)
   );
 
-  const hasStrongPassword = isStrongPassword(req.body.newPassword);
-
-  return hasValidRequestBody && hasStrongPassword;
+  return hasValidRequestBody;
 };
 
 module.exports = {
