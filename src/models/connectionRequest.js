@@ -13,14 +13,33 @@ const connectionRequest = new mongoose.Schema(
     status: {
       type: String,
       enum: {
-        values: ["ignore", "interested", "accepted", "rejected"],
+        values: ["ignored", "interested", "accepted", "rejected"],
         message: "{VALUE} is incorrect status type",
       },
       lowercase: [true, "status should in lowercase"],
-      default: "ignore",
+      default: "ignored",
     },
   },
   {
     timestamps: true,
   }
 );
+
+connectionRequest.index({ fromUserId: 1, toUserId: 1 });
+
+connectionRequest.pre("save", function () {
+  if (this.fromUserId.equals(this.toUserId)) {
+    const error = new Error(
+      "You cannot send connection request to your own account."
+    );
+    error.status = 400;
+    throw error;
+  }
+});
+
+const ConnectionRequest = mongoose.model(
+  "ConnectionRequest",
+  connectionRequest
+);
+
+module.exports = ConnectionRequest;

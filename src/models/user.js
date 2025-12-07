@@ -35,7 +35,10 @@ const userSchema = new mongose.Schema(
       type: String,
       lowercase: true,
       required: [true, "Email id is required to create an account."],
-      unique: true,
+      unique: [
+        true,
+        "You already have registered with this email please try logging in.",
+      ],
       trim: true,
       immutable: true,
       validate: {
