@@ -25,11 +25,13 @@ profileRouter.get("/profile", userAuth, async (req, res) => {
       age,
       gender,
       profilePhoto,
+      _id,
     } = user;
 
     res.send({
       status: "success",
       data: {
+        _id,
         firstName,
         lastName,
         emailId,

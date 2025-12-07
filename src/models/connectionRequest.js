@@ -37,6 +37,11 @@ connectionRequest.pre("save", function () {
   }
 });
 
+// Static methods
+connectionRequest.statics.isValidId = function (id) {
+  return mongoose.Types.ObjectId.isValid(id);
+};
+
 const ConnectionRequest = mongoose.model(
   "ConnectionRequest",
   connectionRequest
