@@ -5,6 +5,9 @@ const { timeAgo } = require("../utils/date");
 
 const userRoute = express.Router();
 
+const USER_PUBLIC_DATA =
+  "firstName lastName profilePhoto bio skills age gender";
+
 userRoute.get("/user/requests", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
@@ -19,10 +22,7 @@ userRoute.get("/user/requests", userAuth, async (req, res) => {
         updatedAt: 0,
       }
     )
-      .populate(
-        "fromUserId",
-        "firstName lastName profilePhoto bio skills age gender"
-      )
+      .populate("fromUserId", USER_PUBLIC_DATA)
       .lean(); // <-- important
 
     // Rename fromUserId → sender
@@ -67,11 +67,11 @@ userRoute.get("/user/connections", userAuth, async (req, res) => {
       .populate([
         {
           path: "fromUserId",
-          select: "firstName lastName profilePhoto bio skills age gender",
+          select: USER_PUBLIC_DATA,
         },
         {
           path: "toUserId",
-          select: "firstName lastName profilePhoto bio skills age gender",
+          select: USER_PUBLIC_DATA,
         },
       ])
       .lean();
@@ -80,11 +80,12 @@ userRoute.get("/user/connections", userAuth, async (req, res) => {
       const isLoggedInUserSender = item.fromUserId._id.equals(loggedInUser._id);
 
       return {
-        ...item,
-        user: isLoggedInUserSender ? item.toUserId : item.fromUserId,
-        fromUserId: undefined,
-        toUserId: undefined,
-        createdAtAgo: timeAgo(item.createdAt),
+        // ...item,
+        // user:
+        ...(isLoggedInUserSender ? item.toUserId : item.fromUserId),
+        // fromUserId: undefined,
+        // toUserId: undefined,
+        // createdAtAgo: timeAgo(item.createdAt),
       };
     });
 
