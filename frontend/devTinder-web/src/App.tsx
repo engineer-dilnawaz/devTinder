@@ -1,5 +1,11 @@
+import BasicCard from "./components/BasicCard";
+
 function App() {
-  return <></>;
+  return (
+    <>
+      <BasicCard />
+    </>
+  );
 }
 
 export default App;
