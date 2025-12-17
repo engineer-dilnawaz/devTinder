@@ -11,3 +11,7 @@ export const login = (
 export const register = (data: LoginPayload) => {
   return api.post("/register", data);
 };
+
+export const logout = () => {
+  return api.post("/logout");
+};

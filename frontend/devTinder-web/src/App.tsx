@@ -1,32 +1,45 @@
-import { BrowserRouter, Route, Routes } from "react-router";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 
-import Login from "./pages/Login";
-import Singup from "./pages/Singup";
+import { AppLayout } from "./layout/AppLayout";
+import { ErrorPage } from "./pages/ErrorPage";
+import Feed from "./pages/Feed";
 import ForgotPassword from "./pages/ForgotPassword";
+import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
-import Feed from "./pages/Feed";
-import { PublicRoutes } from "./routes/PublicRoutes";
+import Singup from "./pages/Singup";
 import { ProtectedRoutes } from "./routes/ProtectedRoutes";
+import { PublicRoutes } from "./routes/PublicRoutes";
 
 function App() {
-  return (
-    <BrowserRouter basename="/">
-      <Routes>
-        <Route path="/" element={<PublicRoutes />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Singup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-        </Route>
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <AppLayout />,
+      errorElement: <ErrorPage />, // ⬅️ ERRORS FALLBACK HERE
+      children: [
+        {
+          element: <PublicRoutes />,
+          children: [
+            { path: "login", element: <Login /> },
+            { path: "signup", element: <Singup /> },
+            { path: "forgot-password", element: <ForgotPassword /> },
+          ],
+        },
+        {
+          element: <ProtectedRoutes />,
+          children: [
+            { path: "feed", element: <Feed /> },
+            { path: "profile", element: <Profile /> },
+            { path: "settings", element: <Settings /> },
+          ],
+        },
+        { index: true, element: <Navigate to="/feed" replace /> },
+      ],
+    },
+  ]);
 
-        <Route path="/" element={<ProtectedRoutes />}>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/feed" element={<Feed />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

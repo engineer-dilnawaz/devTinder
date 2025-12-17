@@ -1,3 +1,5 @@
+import { useLogout } from "../hooks/auth/useLogout";
+
 const navbarListItems = [
   {
     title: "Profile",
@@ -13,6 +15,22 @@ const navbarListItems = [
 ];
 
 export const NavbarList = () => {
+  const { mutate: logout, isPending: isLogoutPending } = useLogout();
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const handleItemClick = (title: string) => {
+    switch (title) {
+      case "Logout":
+        handleLogout();
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <ul
       tabIndex={-1}
@@ -23,6 +41,8 @@ export const NavbarList = () => {
           key={item.title}
           title={item.title}
           badge={item?.badge || undefined}
+          onClick={() => handleItemClick(item.title)}
+          isLoading={isLogoutPending}
         />
       ))}
     </ul>
@@ -32,15 +52,26 @@ export const NavbarList = () => {
 type NavbarListItemProps = {
   title: string;
   badge?: string;
+  onClick?: () => void;
+  isLoading?: boolean;
 };
 
-const NavbarListItem = ({ title, badge }: NavbarListItemProps) => {
+const NavbarListItem = ({
+  title,
+  badge,
+  onClick,
+  isLoading,
+}: NavbarListItemProps) => {
   return (
     <li>
-      <a className="justify-between">
+      <button
+        className="justify-between"
+        disabled={isLoading}
+        onClick={onClick}
+      >
         {title}
         {badge && <span className="badge badge-sm">{badge}</span>}
-      </a>
+      </button>
     </li>
   );
 };
