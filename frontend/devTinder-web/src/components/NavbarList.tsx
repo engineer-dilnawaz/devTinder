@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import { useLogout } from "../hooks/auth/useLogout";
 
 const navbarListItems = [
@@ -16,16 +17,22 @@ const navbarListItems = [
 
 export const NavbarList = () => {
   const { mutate: logout, isPending: isLogoutPending } = useLogout();
-
-  const handleLogout = () => {
-    logout();
-  };
+  const navigate = useNavigate();
 
   const handleItemClick = (title: string) => {
     switch (title) {
-      case "Logout":
-        handleLogout();
+      case "Logout": {
+        logout();
         break;
+      }
+      case "Profile": {
+        navigate("/profile");
+        break;
+      }
+      case "Settings": {
+        navigate("/settings");
+        break;
+      }
       default:
         break;
     }
