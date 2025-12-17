@@ -53,6 +53,7 @@ const userSchema = new mongose.Schema(
     password: {
       type: String,
       required: true,
+
       validate: {
         validator: function (value) {
           return isStrongPassword(value);
@@ -148,6 +149,14 @@ userSchema.methods.changePassword = async function (oldPassword, newPassword) {
   this.password = hashedPassword;
   await this.save({ validateBeforeSave: true });
 };
+
+userSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    delete ret.password;
+    delete ret.__v;
+    return ret;
+  },
+});
 
 const User = mongose.model("User", userSchema);
 

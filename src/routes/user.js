@@ -180,4 +180,4 @@ userRoute.get("/feed", userAuth, async (req, res) => {
   }
 });
 
-module.exports = userRoute;
+module.exports = { userRouter: userRoute, USER_PUBLIC_DATA };

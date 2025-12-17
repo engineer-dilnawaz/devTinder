@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const { isEmailValid, isEmpty } = require("../utils/validations");
 const { SALT_ROUND } = require("../constants/common");
+const { USER_PUBLIC_DATA } = require("./user");
 
 const authRouter = express.Router();
 
@@ -67,6 +68,7 @@ authRouter.post("/login", async (req, res) => {
     res.send({
       message: "Logged In Successfully",
       authToken: token,
+      user: userData.toJSON(),
     });
   } catch (error) {
     res.status(400).send({
