@@ -1,5 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router";
+
 import { useLoginMutation } from "../../hooks";
 import { loginSchema, type LoginSchema } from "../../schemas";
 
@@ -8,8 +10,8 @@ export const useLogin = () => {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
-
   const { mutate, isPending, error } = useLoginMutation();
+  const navigate = useNavigate();
 
   const handleSubmit = form.handleSubmit((values) => {
     mutate(
@@ -17,6 +19,7 @@ export const useLogin = () => {
       {
         onSuccess() {
           form.reset();
+          navigate("/feed");
         },
       }
     );

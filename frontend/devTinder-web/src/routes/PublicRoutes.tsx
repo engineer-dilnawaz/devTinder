@@ -1,0 +1,20 @@
+import { Navigate, Outlet } from "react-router";
+
+import { Navbar } from "../components/Navbar";
+import { Footer } from "../components/Footer";
+import { useAuthStore } from "../stores/auth.store";
+
+export const PublicRoutes = () => {
+  const authToken = useAuthStore((state) => state.token);
+
+  if (authToken) {
+    return <Navigate to="/feed" />;
+  }
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+      <Footer />
+    </>
+  );
+};
