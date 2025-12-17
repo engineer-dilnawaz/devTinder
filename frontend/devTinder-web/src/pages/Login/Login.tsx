@@ -52,8 +52,8 @@ const Login = () => {
               </button>
 
               <div className="mt-2">
-                <Link to="/signup" className="link link-hover">
-                  Don&apos;t have an account?{" "}
+                Don&apos;t have an account?
+                <Link to="/signup" className="link link-hover ml-0.5">
                   <span className="text-base-content">Register here</span>
                 </Link>
               </div>
