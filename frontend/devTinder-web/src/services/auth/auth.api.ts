@@ -1,5 +1,6 @@
-import api from "./axios";
-import type { LoginPayload, LoginResponse, ApiResponse } from "../types";
+import api from "../../api/axios";
+import type { LoginPayload, LoginResponse } from "./auth.types";
+import type { ApiResponse } from "../../api/api.types";
 
 export const login = (
   data: LoginPayload

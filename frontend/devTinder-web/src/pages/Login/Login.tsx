@@ -1,18 +1,11 @@
 import { Link } from "react-router";
 
+import { Loading } from "../../components/Loading";
 import { useLogin } from "./useLogin";
 
 const Login = () => {
-  const {
-    email,
-    password,
-    error,
-    mutationError,
-    mutationData,
-    setEmail,
-    setPassword,
-    handleSubmit,
-  } = useLogin();
+  const { register, formState, mutationError, loading, handleSubmit } =
+    useLogin();
 
   return (
     <div className="hero bg-base-200 min-h-screen">
@@ -28,24 +21,29 @@ const Login = () => {
             <fieldset className="fieldset">
               <label className="label">Email</label>
               <input
-                type="email"
+                {...register("email")}
                 className={`input transition-colors outline-none ${
-                  error.emailError ? "border-error" : ""
+                  formState.errors.email ? "border-error" : ""
                 }`}
                 placeholder="Email"
-                value={email}
-                onChange={setEmail}
               />
-              <label className="label mt-4">Password</label>
+              {formState.errors.email && (
+                <p className="text-error">{formState.errors.email.message}</p>
+              )}
+              <label className="label">Password</label>
               <input
+                {...register("password")}
                 type="password"
                 className={`input transition-colors outline-none ${
-                  error.passwordError ? "border-error" : ""
+                  formState.errors.password ? "border-error" : ""
                 }`}
                 placeholder="Password"
-                value={password}
-                onChange={setPassword}
               />
+              {formState.errors.password && (
+                <p className="text-error">
+                  {formState.errors.password.message}
+                </p>
+              )}
               <div className="flex justify-end mr-4">
                 <Link to="/forgot-password" className="link link-hover ">
                   Forgot password?
@@ -55,16 +53,12 @@ const Login = () => {
               <button
                 className={"btn btn-neutral transition-colors mt-4"}
                 onClick={handleSubmit}
+                disabled={loading}
               >
-                Login
+                {loading ? <Loading size="sm" color="primary" /> : "Login"}
               </button>
               {mutationError && (
                 <div className="text-red-500 h-4">{mutationError?.message}</div>
-              )}
-              {mutationData && (
-                <div className="text-green-500 h-4">
-                  {mutationData?.data?.message}
-                </div>
               )}
 
               <div className="mt-2">

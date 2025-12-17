@@ -1,11 +1,10 @@
-import { useUserStore } from "../stores/user.store";
+import { useAuthStore } from "../stores/auth.store";
 import { Logo } from "./Logo";
 import { NavbarAvatar } from "./NavbarAvatar";
 import { NavbarList } from "./NavbarList";
 
 export const Navbar = () => {
-  const user = useUserStore((state) => state.user);
-  console.log(user);
+  const user = useAuthStore((state) => state.user);
   return (
     <div className="navbar bg-base-300 shadow-sm">
       <Logo />

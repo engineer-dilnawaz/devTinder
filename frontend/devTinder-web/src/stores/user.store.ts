@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { User } from "../services/types/auth.types";
+import type { User } from "../services/auth/auth.types";
 
 export interface UserStoreType {
   user: User | null;

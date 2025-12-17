@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { login } from "../api";
+import { handleLoginSucess, login } from "../../services/auth";
 
 export const useLoginMutation = () => {
   return useMutation({
     mutationFn: login,
-    onSuccess(data) {
-      localStorage.setItem("token", data.data?.authToken);
+    onSuccess({ data }) {
+      handleLoginSucess(data);
     },
   });
 };

@@ -1,4 +1,4 @@
-import type { User } from "../services/types";
+import type { User } from "../services/auth";
 
 type NavbarAvatarProps = {
   user: User;
