@@ -1,5 +1,6 @@
 import { useReducer, type ChangeEvent } from "react";
 import { useLoginMutation } from "../../services/queries/auth.queries";
+import { useUserStore } from "../../stores/user.store";
 
 type State = {
   email: string;
@@ -55,6 +56,7 @@ const loginReducer = (state: State, action: Action): State => {
 export const useLogin = () => {
   const [state, dispatch] = useReducer(loginReducer, initialState);
   const { email, password, error } = state;
+  const setUser = useUserStore((state) => state.setUser);
   const {
     mutate: mutateLogin,
     isPending,
@@ -82,7 +84,8 @@ export const useLogin = () => {
     mutateLogin(
       { emailId: email, password },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          setUser(data.data.user);
           dispatch({ type: "RESET_FORM" });
         },
         onError: (error) => {
