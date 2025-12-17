@@ -4,9 +4,9 @@ import type { LoginPayload, LoginResponse, ApiResponse } from "../types";
 export const login = (
   data: LoginPayload
 ): Promise<ApiResponse<LoginResponse>> => {
-  return api.post("/auth/login", data);
+  return api.post("/login", data);
 };
 
 export const register = (data: LoginPayload) => {
-  return api.post("/auth/register", data);
+  return api.post("/register", data);
 };

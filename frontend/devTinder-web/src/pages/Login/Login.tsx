@@ -3,8 +3,16 @@ import { Link } from "react-router";
 import { useLogin } from "./useLogin";
 
 const Login = () => {
-  const { email, password, error, setEmail, setPassword, handleSubmit } =
-    useLogin();
+  const {
+    email,
+    password,
+    error,
+    mutationError,
+    mutationData,
+    setEmail,
+    setPassword,
+    handleSubmit,
+  } = useLogin();
 
   return (
     <div className="hero bg-base-200 min-h-screen">
@@ -43,13 +51,21 @@ const Login = () => {
                   Forgot password?
                 </Link>
               </div>
-              {/* <div className="text-red-500 h-4">{error}</div> */}
+
               <button
                 className={"btn btn-neutral transition-colors mt-4"}
                 onClick={handleSubmit}
               >
                 Login
               </button>
+              {mutationError && (
+                <div className="text-red-500 h-4">{mutationError?.message}</div>
+              )}
+              {mutationData && (
+                <div className="text-green-500 h-4">
+                  {mutationData?.data?.message}
+                </div>
+              )}
 
               <div className="mt-2">
                 Don&apos;t have an account?

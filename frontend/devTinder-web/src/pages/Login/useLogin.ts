@@ -1,4 +1,5 @@
 import { useReducer, type ChangeEvent } from "react";
+import { useLoginMutation } from "../../services/queries/auth.queries";
 
 type State = {
   email: string;
@@ -7,7 +8,6 @@ type State = {
     emailError: string;
     passwordError: string;
   };
-  loading: boolean;
 };
 
 const initialState: State = {
@@ -17,7 +17,6 @@ const initialState: State = {
     emailError: "",
     passwordError: "",
   },
-  loading: false,
 };
 
 type Action =
@@ -46,8 +45,6 @@ const loginReducer = (state: State, action: Action): State => {
       };
     case "SET_ERROR":
       return { ...state, error: action.payload };
-    case "SET_LOADING":
-      return { ...state, loading: action.payload };
     case "RESET_FORM":
       return { ...initialState, email: "", password: "" };
     default:
@@ -57,6 +54,13 @@ const loginReducer = (state: State, action: Action): State => {
 
 export const useLogin = () => {
   const [state, dispatch] = useReducer(loginReducer, initialState);
+  const { email, password, error } = state;
+  const {
+    mutate: mutateLogin,
+    isPending,
+    data: mutationData,
+    error: mutationError,
+  } = useLoginMutation();
 
   const setEmail = (ev: ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: "SET_EMAIL", payload: ev.target.value });
@@ -64,15 +68,10 @@ export const useLogin = () => {
   const setPassword = (ev: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: "SET_PASSWORD", payload: ev.target.value });
 
-  const setLoading = (loading: boolean) =>
-    dispatch({ type: "SET_LOADING", payload: loading });
-
   const setError = (error: State["error"]) =>
     dispatch({ type: "SET_ERROR", payload: error });
 
-  const resetForm = () => dispatch({ type: "RESET_FORM" });
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (email.trim() === "" || password.trim() === "") {
       setError({
         emailError: email.trim() === "" ? "Email is required" : "",
@@ -80,21 +79,28 @@ export const useLogin = () => {
       });
       return;
     }
-    console.log(email, password);
-    resetForm();
+    mutateLogin(
+      { emailId: email, password },
+      {
+        onSuccess: () => {
+          dispatch({ type: "RESET_FORM" });
+        },
+        onError: (error) => {
+          console.log("Error: ", error);
+        },
+      }
+    );
   };
-
-  const { email, password, error, loading } = state;
 
   return {
     email,
     password,
     error,
-    loading,
+    mutationError,
+    mutationData,
+    loading: isPending,
     setEmail,
     setPassword,
-    setLoading,
-    setError,
     handleSubmit,
   };
 };
